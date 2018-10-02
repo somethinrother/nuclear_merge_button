@@ -1,6 +1,6 @@
 require 'github_api'
 
-class GithubBrain
+class GithubController
   attr_accessor :user, :repo
 	
   def initialize(user, repo)
@@ -9,12 +9,15 @@ class GithubBrain
     configure
   end
 	
-  def get_branch_number
-	
+  def get_all_branches
+	Github::Client::Repos.new.branches.list
+  end
+  
+  def pull_requests
+	github.pull_requests.list
   end
 	
   def merge_branch
-    list = github.pull_requests.list
     branch_name = list.body[0].head.ref
     github.pull_requests.merge number: '3'
   end
@@ -22,8 +25,6 @@ class GithubBrain
   def delete_branch
     github.git_data.references.delete @user, @repo, 'heads/new_branch'
   end
-	
-  private
 	
   def configure
     Github.configure do |c|
