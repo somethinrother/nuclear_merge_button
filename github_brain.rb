@@ -22,12 +22,12 @@ class GithubController
     github.pull_requests.list
   end
 
-  def merge_branch
-    github.pull_requests.merge number: '6'
+  def merge_branch(branch_number_string)
+    github.pull_requests.merge(number: branch_number_string)
   end
 
-  def delete_branch
-    github.git_data.references.delete @user, @repo, 'heads/new_branch'
+  def delete_branch(branch_ref_string)
+    github.git_data.references.delete(@user, @repo, branch_ref_string)
   end
 
   def configure
