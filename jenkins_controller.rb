@@ -9,7 +9,7 @@ class JenkinsController
   attr_accessor :job, :last_build_number, :second_last_build_number
 
   def initialize
-    @job = 'quandl.staging.pipeline'
+    @job = 'quandl.staging.pipeline' # TODO: Make this an ENV var
     @last_build_number, @second_last_build_number = retrieve_last_two_builds
   end
 
@@ -30,14 +30,14 @@ class JenkinsController
 
   def jenkins
     JenkinsApi::Client.new(
-      server_ip: 'jenkins.staging.app.internal',
+      server_ip: 'jenkins.staging.app.internal', # TODO: Make these all ENV
       username: 'james',
       password: ENV['JENKINS_TOKEN']
     )
   end
 
   def retrieve_last_two_builds
-    builds = jenkins.job.get_builds('quandl.staging.pipeline')
+    builds = jenkins.job.get_builds(@job)
     last_build_number = builds[0]['number'].to_s
     second_last_build_number = builds[1]['number'].to_s
     [last_build_number, second_last_build_number]
@@ -47,6 +47,8 @@ class JenkinsController
     repo_name = repo['name']
     branch_name = repo['value']
     branch_name != 'master' && repo_name != 'REMOTE' && repo_name != 'BROWSERS'
+    # TODO: Perhaps make this into an array of blacklisted
+    # repo names to check against
   end
 
   def building?(build_number)

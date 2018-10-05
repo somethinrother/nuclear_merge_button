@@ -9,7 +9,7 @@ class GithubController
   attr_accessor :user, :repo, :branch
 
   def initialize(user, repo, branch)
-    @user = user
+    @user = user # TODO: Make this an ENV var
     @repo = repo
     @branch = branch
     configure
