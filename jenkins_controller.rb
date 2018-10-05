@@ -18,6 +18,8 @@ class JenkinsController
   end
 
   def retrieve_tested_repo_details(build_number)
+    # TODO: Probably a good idea to just return an error if the build that
+    # this is called with is a FAILURE
     build_details = retrieve_build_details(build_number)
     repo_data = build_details['actions'][0]['parameters']
     repo_data.each_with_object({}) do |repo, tested_repos|
