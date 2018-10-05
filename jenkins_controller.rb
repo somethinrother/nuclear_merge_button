@@ -13,10 +13,6 @@ class JenkinsController
     @last_build_number, @second_last_build_number = retrieve_last_two_builds
   end
 
-  def retrieve_build_details(build_number)
-    jenkins.job.get_build_details(@job, build_number)
-  end
-
   def retrieve_result(build_number)
     retrieve_build_details(build_number)['result']
   end
@@ -55,5 +51,9 @@ class JenkinsController
 
   def building?(build_number)
     retrieve_build_details(build_number)['building']
+  end
+
+  def retrieve_build_details(build_number)
+    jenkins.job.get_build_details(@job, build_number)
   end
 end
