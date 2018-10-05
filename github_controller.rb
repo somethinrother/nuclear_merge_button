@@ -14,14 +14,6 @@ class GithubController
     configure
   end
 
-  def retrieve_all_branches
-    Github::Client::Repos.new.branches.list
-  end
-
-  def pull_requests
-    github.pull_requests.list
-  end
-
   def merge_branch(branch_number_string)
     github.pull_requests.merge(number: branch_number_string)
   end
@@ -29,6 +21,8 @@ class GithubController
   def delete_branch(branch_ref_string)
     github.git_data.references.delete(@user, @repo, branch_ref_string)
   end
+
+  private
 
   def configure
     Github.configure do |c|
@@ -40,5 +34,9 @@ class GithubController
 
   def github
     Github.new
+  end
+
+  def pull_requests
+    github.pull_requests.list
   end
 end
