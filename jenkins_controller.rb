@@ -13,6 +13,10 @@ class JenkinsController
     @last_build_number, @second_last_build_number = retrieve_last_two_builds
   end
 
+  def building?(build_number)
+    retrieve_build_details(build_number)['building']
+  end
+
   def retrieve_tested_repo_details(build_number)
     repo_data = retrieve_build_details(build_number)['actions'][0]['parameters']
     unless repo_data.nil?
@@ -48,10 +52,6 @@ class JenkinsController
     repo_name = repo['name']
     branch_name = repo['value']
     branch_name != 'master' && repo_name != 'REMOTE' && repo_name != 'BROWSERS'
-  end
-
-  def building?(build_number)
-    retrieve_build_details(build_number)['building']
   end
 
   def retrieve_build_details(build_number)

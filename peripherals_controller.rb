@@ -16,10 +16,6 @@ class PeripheralsController
     @build_in_progress = jenkins.building?(last_build_number)
   end
 
-  def jenkins
-    JenkinsController.new
-  end
-
   def open_lid
     # Flash red light if last build was failed
   end
@@ -29,7 +25,7 @@ class PeripheralsController
   end
 
   def push_button
-    return false if @branches_to_merge['SUCCESS'].false?
+    return false if @branches_to_merge['SUCCESS'] == false
     # If last build was a success, instantiate a GithubController for each
     # entry in @branches_to_merge, and call merge_pull_request
   end
@@ -44,9 +40,15 @@ class PeripheralsController
     # light appropriately
   end
 
-  def self.refresh
-    # this is a cron job that will run periodically to reset the current values
-    # of this model. This will serve to set the working light, set the results
-    # light, and reset the branches to merge, if the run is successful
+  def refresh
+    last_build_number = jenkins.last_build_number
+    @branches_to_merge = jenkins.retrieve_tested_repo_details(last_build_number)
+    @build_in_progress = jenkins.building?(last_build_number)
+  end
+
+  private
+
+  def jenkins
+    JenkinsController.new
   end
 end
