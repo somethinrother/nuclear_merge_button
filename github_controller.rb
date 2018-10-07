@@ -24,6 +24,8 @@ class GithubController
     end
   end
 
+  private
+
   def merge_branch(pull_request_number_string)
     github.pull_requests.merge(number: pull_request_number_string)
   end
