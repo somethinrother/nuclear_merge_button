@@ -9,13 +9,13 @@ class GithubController
   attr_accessor :user, :repo, :branch
 
   def initialize(user, repo, branch)
-    @user = user
+    @user = user # TODO: Make this an ENV var
     @repo = repo
     @branch = branch
     configure
   end
 
-  def merge_pull_request
+  def merge_pull_request_and_delete_branch
     pull_requests.each do |request|
       if request.head.ref == @branch
         merge_branch(request.number)
@@ -23,6 +23,8 @@ class GithubController
       end
     end
   end
+
+  private
 
   def merge_branch(pull_request_number_string)
     github.pull_requests.merge(number: pull_request_number_string)
