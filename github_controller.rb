@@ -15,7 +15,7 @@ class GithubController
     configure
   end
 
-  def merge_pull_request
+  def merge_pull_request_and_delete_branch
     pull_requests.each do |request|
       if request.head.ref == @branch
         merge_branch(request.number)

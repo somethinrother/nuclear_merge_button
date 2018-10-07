@@ -9,7 +9,7 @@ class JenkinsController
   attr_accessor :job, :last_build_number, :second_last_build_number
 
   def initialize
-    @job = 'quandl.staging.pipeline' # TODO: Make this an ENV var
+    @job = ENV['JENKINS_JOB_NAME']
     @last_build_number, @second_last_build_number = retrieve_last_two_builds
   end
 
