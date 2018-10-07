@@ -8,8 +8,8 @@ require 'github_api'
 class GithubController
   attr_accessor :user, :repo, :branch
 
-  def initialize(user, repo, branch)
-    @user = user # TODO: Make this an ENV var
+  def initialize(repo, branch)
+    @user = ENV['GITHUB_USERNAME']
     @repo = repo
     @branch = branch
     configure
