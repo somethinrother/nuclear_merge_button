@@ -8,10 +8,10 @@ require_relative 'jenkins_controller'
 
 # Class to control interaction with the Dream Cheeky Button & Lightbox
 class PeripheralsController
-  attr_accessor :last_build_result
+  attr_accessor :last_build_number, :branches_to_merge, :build_in_progress
 
   def initialize
-    last_build_number = jenkins.last_build_number
+    @last_build_number = jenkins.last_build_number
     @branches_to_merge = jenkins.retrieve_tested_repo_details(last_build_number)
     @build_in_progress = jenkins.building?(last_build_number)
   end
@@ -41,7 +41,7 @@ class PeripheralsController
   end
 
   def refresh
-    last_build_number = jenkins.last_build_number
+    @last_build_number = jenkins.last_build_number
     @branches_to_merge = jenkins.retrieve_tested_repo_details(last_build_number)
     @build_in_progress = jenkins.building?(last_build_number)
   end
