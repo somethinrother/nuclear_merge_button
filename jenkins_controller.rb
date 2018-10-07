@@ -13,27 +13,26 @@ class JenkinsController
     @last_build_number, @second_last_build_number = retrieve_last_two_builds
   end
 
-  def retrieve_result(build_number)
-    retrieve_build_details(build_number)['result']
-  end
-
   def retrieve_tested_repo_details(build_number)
-    # TODO: Probably a good idea to just return an error if the build that
-    # this is called with is a FAILURE
-    build_details = retrieve_build_details(build_number)
-    repo_data = build_details['actions'][0]['parameters']
-    repo_data.each_with_object({}) do |repo, tested_repos|
-      branch_name = repo['value']
-      tested_repos[repo['name']] = branch_name if custom_branch(repo)
+    repo_data = retrieve_build_details(build_number)['actions'][0]['parameters']
+    unless repo_data.nil?
+      repo_details = repo_data.each_with_object({}) do |repo, tested_repos|
+        branch_name = repo['value']
+        tested_repos[repo['name']] = branch_name if custom_branch(repo)
+      end
     end
+
+    return { 'SUCCESS': false } if repo_details.empty? || !repo_details
+    repo_details['SUCCESS'] = true
+    repo_details
   end
 
   private
 
   def jenkins
     JenkinsApi::Client.new(
-      server_ip: 'jenkins.staging.app.internal', # TODO: Make these all ENV
-      username: 'james',
+      server_ip: ENV['JENKINS_SERVER_IP'],
+      username: ENV['JENKINS_USERNAME'],
       password: ENV['JENKINS_TOKEN']
     )
   end
@@ -49,8 +48,6 @@ class JenkinsController
     repo_name = repo['name']
     branch_name = repo['value']
     branch_name != 'master' && repo_name != 'REMOTE' && repo_name != 'BROWSERS'
-    # TODO: Perhaps make this into an array of blacklisted
-    # repo names to check against
   end
 
   def building?(build_number)

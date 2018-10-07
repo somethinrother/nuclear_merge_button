@@ -12,7 +12,6 @@ class PeripheralsController
 
   def initialize
     last_build_number = jenkins.last_build_number
-    @last_build_result = jenkins.retrieve_result(last_build_number)
     @branches_to_merge = jenkins.retrieve_tested_repo_details(last_build_number)
     @build_in_progress = jenkins.building?(last_build_number)
   end
@@ -30,7 +29,7 @@ class PeripheralsController
   end
 
   def push_button
-    # Do nothing if last build was a failure
+    return false if @branches_to_merge['SUCCESS'].false?
     # If last build was a success, instantiate a GithubController for each
     # entry in @branches_to_merge, and call merge_pull_request
   end
