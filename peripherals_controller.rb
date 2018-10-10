@@ -15,10 +15,8 @@ class PeripheralsController
   def initialize
     @last_build_number = jenkins.last_build_number
     @branches_to_merge = jenkins.branches_to_merge
-    @red_light = nil # Red light gpio
-    @yellow_light = nil # Yellow light gpio
-    @green_light = nil # Green light gpio
-    @current_light = nil # Set to red or green
+    @current_light = nil
+    @closed = true
   end
 
   def control_lights
@@ -29,11 +27,17 @@ class PeripheralsController
   def run_dream_cheeky # rubocop:disable Metrics/MethodLength
     DreamCheeky::BigRedButton.run do
       open do
-        flash_light(current_light)
+        @closed = false
+        until closed?
+          loop do
+            flash_light(light)
+          end
+        end
       end
 
       close do
-        turn_on_light(current_light)
+        @closed = true
+        gpio.set_high(current_light)
       end
 
       push do
@@ -44,12 +48,27 @@ class PeripheralsController
 
   private
 
+  def closed?
+    @closed
+  end
+
   def jenkins
     JenkinsController.new
   end
 
   def github(repo, branch)
     GithubController.new(repo, branch)
+  end
+
+  def gpio_config
+    RPi::GPIO.set_numbering :board
+    RPi::GPIO.setup GREEN_LIGHT, as: :output
+    RPi::GPIO.setup RED_LIGHT, as: :output
+    RPi::GPIO.setup YELLOW_LIGHT, as: :output
+  end
+
+  def gpio
+    RPi::GPIO
   end
 
   def merge_it_all!
@@ -59,19 +78,15 @@ class PeripheralsController
       github(repo, branch).merge_pull_request_and_delete_branch
     end
 
-    # Flash both lights 3 times
-  end
-
-  def turn_on_light(light)
-    # Turn on the provided light
-  end
-
-  def turn_off_light(light)
-    # turn off the provided light
+    flash_light(GREEN_LIGHT)
+    flash_light(GREEN_LIGHT)
   end
 
   def flash_light(light)
-    # Flash the provided light
+    gpio.set_high(light)
+    sleep(1)
+    gpio.set_low(light)
+    sleep(1)
   end
 
   def control_working_light
