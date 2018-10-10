@@ -17,18 +17,13 @@ class JenkinsController
     retrieve_build_details(@last_build_number)['building']
   end
 
-  def retrieve_tested_repo_details(build_number)
-    repo_data = repo_data(build_number)
-
-    unless repo_data.nil?
-      repo_details = repo_data.each_with_object({}) do |repo, tested_repos|
-        add_repo_to_details_hash(tested_repos, repo)
-      end
-    end
-
-    return { 'SUCCESS': false } if repo_details.empty? || !repo_details
-    repo_details['SUCCESS'] = true
-    repo_details
+  def compile_data_for_github
+    repo_data = if building?
+                  repo_data(@second_last_build_number)
+                else
+                  repo_data(@last_build_number)
+                end
+    build_tested_repos_hash(repo_data)
   end
 
   private
@@ -49,6 +44,18 @@ class JenkinsController
     branch_name = repo['value']
     repo_name = map_jenkins_repo_to_github(repo['name'])
     details_hash[repo_name] = branch_name if custom_branch(repo)
+  end
+
+  def build_tested_repos_hash(repo_data)
+    unless repo_data.nil?
+      repo_details = repo_data.each_with_object({}) do |repo, tested_repos|
+        add_repo_to_details_hash(tested_repos, repo)
+      end
+    end
+
+    return { 'SUCCESS': false } if repo_details.empty? || !repo_details
+    repo_details['SUCCESS'] = true
+    repo_details
   end
 
   def retrieve_last_two_builds
