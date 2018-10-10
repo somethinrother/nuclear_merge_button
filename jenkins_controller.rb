@@ -13,12 +13,13 @@ class JenkinsController
     @last_build_number, @second_last_build_number = retrieve_last_two_builds
   end
 
-  def building?(build_number)
-    retrieve_build_details(build_number)['building']
+  def building?
+    retrieve_build_details(@last_build_number)['building']
   end
 
   def retrieve_tested_repo_details(build_number)
     repo_data = repo_data(build_number)
+
     unless repo_data.nil?
       repo_details = repo_data.each_with_object({}) do |repo, tested_repos|
         add_repo_to_details_hash(tested_repos, repo)
@@ -30,7 +31,7 @@ class JenkinsController
     repo_details
   end
 
-  # private
+  private
 
   def jenkins
     JenkinsApi::Client.new(
