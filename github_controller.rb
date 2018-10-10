@@ -26,14 +26,6 @@ class GithubController
 
   private
 
-  def merge_branch(pull_request_number_string)
-    github.pull_requests.merge(number: pull_request_number_string)
-  end
-
-  def delete_branch
-    github.git_data.references.delete(@user, @repo, "heads/#{@branch}")
-  end
-
   def configure
     Github.configure do |c|
       c.oauth_token = ENV['GITHUB_ACCESS_TOKEN']
@@ -44,6 +36,14 @@ class GithubController
 
   def github
     Github.new
+  end
+
+  def merge_branch(pull_request_number_string)
+    github.pull_requests.merge(number: pull_request_number_string)
+  end
+
+  def delete_branch
+    github.git_data.references.delete(@user, @repo, "heads/#{@branch}")
   end
 
   def pull_requests
