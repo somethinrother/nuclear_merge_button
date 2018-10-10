@@ -13,7 +13,7 @@ class JenkinsController
     @last_build_number, @second_last_build_number = retrieve_last_two_builds
   end
 
-  def compile_data_for_github
+  def branches_to_merge
     repo_data = if building?
                   repo_data(@second_last_build_number)
                 else
@@ -86,7 +86,7 @@ class JenkinsController
       end
     end
 
-    return { 'SUCCESS': false } if repo_details.empty? || !repo_details
+    return { 'SUCCESS': false } if repo_details.nil? || repo_details.empty?
     repo_details['SUCCESS'] = true
     repo_details
   end
