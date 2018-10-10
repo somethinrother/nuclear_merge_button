@@ -18,11 +18,10 @@ class JenkinsController
   end
 
   def retrieve_tested_repo_details(build_number)
-    repo_data = retrieve_build_details(build_number)['actions'][0]['parameters']
+    repo_data = repo_data(build_number)
     unless repo_data.nil?
       repo_details = repo_data.each_with_object({}) do |repo, tested_repos|
-        branch_name = repo['value']
-        tested_repos[repo['name']] = branch_name if custom_branch(repo)
+        add_repo_to_details_hash(tested_repos, repo)
       end
     end
 
@@ -31,7 +30,7 @@ class JenkinsController
     repo_details
   end
 
-  private
+  # private
 
   def jenkins
     JenkinsApi::Client.new(
@@ -39,6 +38,16 @@ class JenkinsController
       username: ENV['JENKINS_USERNAME'],
       password: ENV['JENKINS_TOKEN']
     )
+  end
+
+  def repo_data(build_number)
+    retrieve_build_details(build_number)['actions'][0]['parameters']
+  end
+
+  def add_repo_to_details_hash(details_hash, repo)
+    branch_name = repo['value']
+    repo_name = map_jenkins_repo_to_github(repo['name'])
+    details_hash[repo_name] = branch_name if custom_branch(repo)
   end
 
   def retrieve_last_two_builds
@@ -56,5 +65,21 @@ class JenkinsController
 
   def retrieve_build_details(build_number)
     jenkins.job.get_build_details(@job, build_number)
+  end
+
+  def repo_name_map
+    {
+      JENKINS_BRANCH: 'jenkins',
+      QA_AUTOMATION_BRANCH: 'qa-automation',
+      WIKIPOSIT_BRANCH: 'wikiposit',
+      NEXT_BRANCH: 'next',
+      PERMAHOC_BRANCH: 'permahoc',
+      GATEWAY_BRANCH: 'gateway',
+      DATAPI_BRANCH: 'DataPI'
+    }
+  end
+
+  def map_jenkins_repo_to_github(jenkins_branch_name)
+    repo_name_map[jenkins_branch_name.to_sym]
   end
 end
